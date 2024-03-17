@@ -1,0 +1,2 @@
+[target]
+192.168.0.219 ansible_connection=ssh ansible_user=tiju ansible_ssh_pass=tiju ansible_become_pass=tiju

@@ -1,0 +1,48 @@
+---
+- name: Deploy Docker container with a static html page  using Apache server
+  hosts: target
+  become: true
+  gather_facts: no
+  tasks:
+    - name: Install pip 
+      become: yes
+      apt:
+        name: python3-pip  
+        state: present
+
+    - name: Install Docker Python module
+      pip:
+        name: docker
+    
+    - name: Ensure Docker is installed
+      become: yes
+      apt:
+        name: docker.io
+        state: present
+
+    - name: Ensure /tmp/network directory exists
+      file:
+        path: /tmp/network
+        state: directory
+
+    - name: Create Docker network
+      docker_network:
+        name: apache_network
+        ipam_config:
+          - subnet: 172.168.10.0/30
+
+    - name: Create Docker container with Apache
+      docker_container:
+        name: network_container
+        image: httpd:latest
+        ports:
+          - "80:80"
+        volumes:
+          - /tmp/network:/usr/local/apache2/htdocs
+        networks:
+          - name: apache_network
+            
+    - name: Copy html page files to the host
+      copy:
+        src: /home/tiju/Network_Assignment/index.html
+        dest: /tmp/network
